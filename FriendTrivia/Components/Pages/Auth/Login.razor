@@ -1,0 +1,89 @@
+@page "/login"
+@using FriendTrivia.Services
+@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Login - Friend Trivia</PageTitle>
+
+<div class="hero min-h-screen bg-base-200">
+    <div class="hero-content flex-col">
+        <div class="text-center">
+            <h1 class="text-5xl font-bold">Login</h1>
+            <p class="py-6">Welcome back to Friend Trivia!</p>
+        </div>
+        <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+            <div class="card-body flex">
+                <EditForm Model="@model" OnValidSubmit="HandleLogin">
+                    <DataAnnotationsValidator />
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-error">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>@errorMessage</span>
+                        </div>
+                    }
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Username</span>
+                        </label>
+                        <InputText @bind-Value="model.Username" class="input input-bordered" />
+                        <ValidationMessage For="@(() => model.Username)" class="text-error text-sm" />
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Password</span>
+                        </label>
+                        <InputText type="password" @bind-Value="model.Password" class="input input-bordered" />
+                        <ValidationMessage For="@(() => model.Password)" class="text-error text-sm" />
+                    </div>
+
+                    <div class="form-control mt-6 flex justify-center">
+                        <button type="submit" class="btn btn-primary w-full">Login</button>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="/register" class="link link-hover">Need an account? Register</a>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginModel model = new();
+    private string? errorMessage;
+
+    private class LoginModel
+    {
+        [Required(ErrorMessage = "Username is required")]
+        public string Username { get; set; } = "";
+
+        [Required(ErrorMessage = "Password is required")]
+        public string Password { get; set; } = "";
+    }
+
+    private async Task HandleLogin()
+    {
+        errorMessage = null;
+        var user = await AuthService.LoginAsync(model.Username, model.Password);
+
+        if (user == null)
+        {
+            errorMessage = "Invalid username or password";
+            return;
+        }
+
+        // TODO: Set up authentication state
+        NavigationManager.NavigateTo("/");
+    }
+}
