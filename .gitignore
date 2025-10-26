@@ -204,3 +204,5 @@ Thumbs.db
 appsettings.*
 
 package-lock.json
+
+output.css

@@ -2,7 +2,7 @@
 @using FriendTrivia.Services
 @using Microsoft.AspNetCore.Components.Forms
 @using System.ComponentModel.DataAnnotations
-@inject IAuthService AuthService
+@inject FriendTriviaAuthStateProvider FriendTriviaAuthStateProvider
 @inject NavigationManager NavigationManager
 
 <PageTitle>Login - Friend Trivia</PageTitle>
@@ -15,7 +15,7 @@
         </div>
         <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <div class="card-body flex">
-                <EditForm Model="@model" OnValidSubmit="HandleLogin">
+                <EditForm Model="@model" FormName="loginForm" OnValidSubmit="HandleLogin">
                     <DataAnnotationsValidator />
 
                     @if (!string.IsNullOrEmpty(errorMessage))
@@ -75,9 +75,9 @@
     private async Task HandleLogin()
     {
         errorMessage = null;
-        var user = await AuthService.LoginAsync(model.Username, model.Password);
+        bool success = await FriendTriviaAuthStateProvider.LoginAsync(model.Username, model.Password);
 
-        if (user == null)
+        if (!success)
         {
             errorMessage = "Invalid username or password";
             return;

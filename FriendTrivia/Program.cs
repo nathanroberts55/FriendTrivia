@@ -1,14 +1,25 @@
-using FriendTrivia.Components;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using FriendTrivia.Data;
+using Microsoft.EntityFrameworkCore;
+using FriendTrivia.Components;
 using FriendTrivia.Services;
+using FriendTrivia.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddQuickGridEntityFrameworkAdapter();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+//Logging
+builder.Logging.AddConsole();
+
+// Auth Stuff 
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<FriendTriviaAuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<FriendTriviaAuthStateProvider>());
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

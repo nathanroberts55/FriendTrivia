@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using FriendTrivia.Models;
 using Microsoft.EntityFrameworkCore;
 using FriendTrivia.Data;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Newtonsoft.Json;
 
 namespace FriendTrivia.Services;
 
@@ -17,10 +19,13 @@ public interface IAuthService
 public class AuthService : IAuthService
 {
     private readonly IDbContextFactory<AppDbContext> _contextFactory;
+    private readonly ProtectedLocalStorage _protectedLocalStorage;
+    private readonly string _friendTriviaStorageKey = "friendTriviaIdentity";
 
-    public AuthService(IDbContextFactory<AppDbContext> contextFactory)
+    public AuthService(IDbContextFactory<AppDbContext> contextFactory, ProtectedLocalStorage protectedLocalStorage)
     {
         _contextFactory = contextFactory;
+        _protectedLocalStorage = protectedLocalStorage;
     }
 
     public async Task<User?> RegisterAsync(string username, string password)
@@ -58,6 +63,33 @@ public class AuthService : IAuthService
 
         return user;
     }
+
+    public async Task PersistUserToBrowserAsync(User user)
+    {
+        string userJson = JsonConvert.SerializeObject(user);
+        await _protectedLocalStorage.SetAsync(_friendTriviaStorageKey, userJson);
+    }
+
+    public async Task<User?> FetchUserFromBrowserAsync()
+    {
+        try
+        {
+            var storedUserResult = await _protectedLocalStorage.GetAsync<string>(_friendTriviaStorageKey);
+
+            if (storedUserResult.Success && !string.IsNullOrEmpty(storedUserResult.Value))
+            {
+                var user = JsonConvert.DeserializeObject<User>(storedUserResult.Value);
+                return user;
+            }
+        }
+        catch (InvalidOperationException)
+        {
+
+        }
+        return null;
+    }
+
+    public async Task ClearBrowserUserDataAsync() => await _protectedLocalStorage.DeleteAsync(_friendTriviaStorageKey);
 
     public string HashPassword(string password)
     {
