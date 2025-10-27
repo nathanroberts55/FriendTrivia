@@ -1,9 +1,12 @@
 @page "/login"
 @using FriendTrivia.Services
+@using FriendTrivia.Providers
 @using Microsoft.AspNetCore.Components.Forms
 @using System.ComponentModel.DataAnnotations
 @inject FriendTriviaAuthStateProvider FriendTriviaAuthStateProvider
 @inject NavigationManager NavigationManager
+
+@rendermode InteractiveServer
 
 <PageTitle>Login - Friend Trivia</PageTitle>
 

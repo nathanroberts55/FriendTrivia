@@ -2,6 +2,7 @@
 @using FriendTrivia.Services
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.CodeAnalysis.Elfie.Serialization
+@rendermode InteractiveServer
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 
@@ -15,7 +16,7 @@
         </div>
         <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <div class="card-body">
-                <EditForm Model="@model" FormName="registerForm" OnValidSubmit="HandleRegistration">
+                <EditForm Model="@registerModel" OnValidSubmit="HandleRegistration">
                     <DataAnnotationsValidator />
 
                     @if (!string.IsNullOrEmpty(errorMessage))
@@ -34,24 +35,25 @@
                         <label class="label">
                             <span class="label-text">Username</span>
                         </label>
-                        <InputText @bind-Value="model.Username" class="input input-bordered" />
-                        <ValidationMessage For="@(() => model.Username)" class="text-error text-sm" />
+                        <InputText @bind-Value="registerModel.Username" class="input input-bordered" />
+                        <ValidationMessage For="@(() => registerModel.Username)" class="text-error text-sm" />
                     </div>
 
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Password</span>
                         </label>
-                        <InputText type="password" @bind-Value="model.Password" class="input input-bordered" />
-                        <ValidationMessage For="@(() => model.Password)" class="text-error text-sm" />
+                        <InputText type="password" @bind-Value="registerModel.Password" class="input input-bordered" />
+                        <ValidationMessage For="@(() => registerModel.Password)" class="text-error text-sm" />
                     </div>
 
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Confirm Password</span>
                         </label>
-                        <InputText type="password" @bind-Value="model.ConfirmPassword" class="input input-bordered" />
-                        <ValidationMessage For="@(() => model.ConfirmPassword)" class="text-error text-sm" />
+                        <InputText type="password" @bind-Value="registerModel.ConfirmPassword"
+                            class="input input-bordered" />
+                        <ValidationMessage For="@(() => registerModel.ConfirmPassword)" class="text-error text-sm" />
                     </div>
 
                     <div class="form-control mt-6 flex justify-center">
@@ -68,10 +70,11 @@
 </div>
 
 @code {
-    private RegisterModel model = new();
+    private RegisterModel registerModel = new();
+
     private string? errorMessage;
 
-    private class RegisterModel
+    public class RegisterModel
     {
         [Required(ErrorMessage = "Username is required")]
         [MinLength(3, ErrorMessage = "Username must be at least 3 characters")]
@@ -87,19 +90,20 @@
         public string ConfirmPassword { get; set; } = "";
     }
 
-    private async Task HandleRegistration()
+    public async Task HandleRegistration()
     {
+        Console.WriteLine("Attempting Registration");
         try
         {
             errorMessage = null;
-            var user = await AuthService.RegisterAsync(model.Username, model.Password);
+            var user = await AuthService.RegisterAsync(registerModel.Username, registerModel.Password);
 
             if (user == null)
             {
                 errorMessage = "Username is already taken";
                 return;
             }
-
+            Console.WriteLine("Successfully Resgistration");
             // TODO: Set up authentication state
             NavigationManager.NavigateTo("/login");
         }

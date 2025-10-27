@@ -19,17 +19,18 @@ public interface IAuthService
 public class AuthService : IAuthService
 {
     private readonly IDbContextFactory<AppDbContext> _contextFactory;
-    private readonly ProtectedLocalStorage _protectedLocalStorage;
+    private readonly ProtectedBrowserStorage _protectedBrowserStorage;
     private readonly string _friendTriviaStorageKey = "friendTriviaIdentity";
 
-    public AuthService(IDbContextFactory<AppDbContext> contextFactory, ProtectedLocalStorage protectedLocalStorage)
+    public AuthService(IDbContextFactory<AppDbContext> contextFactory, ProtectedLocalStorage protectedBroswerStorage)
     {
         _contextFactory = contextFactory;
-        _protectedLocalStorage = protectedLocalStorage;
+        _protectedBrowserStorage = protectedBroswerStorage;
     }
 
     public async Task<User?> RegisterAsync(string username, string password)
     {
+        Console.WriteLine($"AuthService.RegisterAsync called with username='{username}' passwordLength={password?.Length ?? 0}");
         using var context = await _contextFactory.CreateDbContextAsync();
 
         // Check if username is taken
@@ -67,14 +68,14 @@ public class AuthService : IAuthService
     public async Task PersistUserToBrowserAsync(User user)
     {
         string userJson = JsonConvert.SerializeObject(user);
-        await _protectedLocalStorage.SetAsync(_friendTriviaStorageKey, userJson);
+        await _protectedBrowserStorage.SetAsync(_friendTriviaStorageKey, userJson);
     }
 
     public async Task<User?> FetchUserFromBrowserAsync()
     {
         try
         {
-            var storedUserResult = await _protectedLocalStorage.GetAsync<string>(_friendTriviaStorageKey);
+            var storedUserResult = await _protectedBrowserStorage.GetAsync<string>(_friendTriviaStorageKey);
 
             if (storedUserResult.Success && !string.IsNullOrEmpty(storedUserResult.Value))
             {
@@ -89,7 +90,7 @@ public class AuthService : IAuthService
         return null;
     }
 
-    public async Task ClearBrowserUserDataAsync() => await _protectedLocalStorage.DeleteAsync(_friendTriviaStorageKey);
+    public async Task ClearBrowserUserDataAsync() => await _protectedBrowserStorage.DeleteAsync(_friendTriviaStorageKey);
 
     public string HashPassword(string password)
     {

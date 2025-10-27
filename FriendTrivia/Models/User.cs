@@ -22,7 +22,7 @@ public class User
 
     public int Streak { get; set; } = 0;
     public int QuestionsCreated { get; set; } = 0;
-    public DateTime? LastAnswerDate { get; set; }
+    public DateTime? LastAnswerDate { get; set; } = null;
 
     // Navigation properties
     public ICollection<Question> CreatedQuestions { get; set; } = new List<Question>();
@@ -45,6 +45,6 @@ public class User
         PasswordHash = principal.FindFirstValue(ClaimTypes.Hash),
         Streak = int.Parse(principal.FindFirstValue(nameof(Streak))),
         QuestionsCreated = int.Parse(principal.FindFirstValue(nameof(QuestionsCreated))),
-        LastAnswerDate = DateTime.Parse(principal.FindFirstValue(nameof(LastAnswerDate)))
+        // LastAnswerDate = DateTime.Parse(principal.FindFirstValue(nameof(LastAnswerDate)) ?? DateTime.UtcNow.ToString())
     };
 }

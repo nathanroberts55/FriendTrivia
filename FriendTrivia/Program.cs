@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using FriendTrivia.Components;
+using FriendTrivia.Providers;
 using FriendTrivia.Services;
 using FriendTrivia.Data;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 

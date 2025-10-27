@@ -1,4 +1,9 @@
-﻿<div class="navbar bg-base-100 shadow-sm">
+﻿@using FriendTrivia.Providers
+@using System.Threading.Tasks
+@inject FriendTriviaAuthStateProvider FriendTriviaAuthStateProvider
+@inject NavigationManager NavigationManager
+
+<div class="navbar bg-base-100 shadow-sm">
     <div class="navbar-start">
         <NavLink href="/" class="btn btn-ghost text-xl">Friend Trivia</NavLink>
     </div>
@@ -13,5 +18,24 @@
         </ul>
     </div>
     <div class="navbar-end">
+        <AuthorizeView Context="authState">
+            <Authorized>
+                <div class="dropdown dropdown-end">
+                    <button class="btn btn-ghost" @onclick="HandleLogout">Logout</button>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <NavLink href="/login" class="btn btn-primary">Log in</NavLink>
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
 </div>
+
+@code {
+    public async Task HandleLogout()
+    {
+        await FriendTriviaAuthStateProvider.LogoutAsync();
+        NavigationManager.NavigateTo("/");
+        return;
+    }
+}

@@ -3,6 +3,8 @@ using FriendTrivia.Services;
 using FriendTrivia.Models;
 using System.Security.Claims;
 
+namespace FriendTrivia.Providers;
+
 public class FriendTriviaAuthStateProvider : AuthenticationStateProvider, IDisposable
 {
     private readonly AuthService _authService;
