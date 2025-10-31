@@ -19,13 +19,10 @@ public interface IAuthService
 public class AuthService : IAuthService
 {
     private readonly IDbContextFactory<AppDbContext> _contextFactory;
-    private readonly ProtectedBrowserStorage _protectedBrowserStorage;
-    private readonly string _friendTriviaStorageKey = "friendTriviaIdentity";
 
     public AuthService(IDbContextFactory<AppDbContext> contextFactory, ProtectedLocalStorage protectedBroswerStorage)
     {
         _contextFactory = contextFactory;
-        _protectedBrowserStorage = protectedBroswerStorage;
     }
 
     public async Task<User?> RegisterAsync(string username, string password)
@@ -42,7 +39,8 @@ public class AuthService : IAuthService
         var user = new User
         {
             Username = username,
-            PasswordHash = HashPassword(password)
+            PasswordHash = HashPassword(password),
+            Role = "User"
         };
 
         context.Users.Add(user);
@@ -64,33 +62,6 @@ public class AuthService : IAuthService
 
         return user;
     }
-
-    public async Task PersistUserToBrowserAsync(User user)
-    {
-        string userJson = JsonConvert.SerializeObject(user);
-        await _protectedBrowserStorage.SetAsync(_friendTriviaStorageKey, userJson);
-    }
-
-    public async Task<User?> FetchUserFromBrowserAsync()
-    {
-        try
-        {
-            var storedUserResult = await _protectedBrowserStorage.GetAsync<string>(_friendTriviaStorageKey);
-
-            if (storedUserResult.Success && !string.IsNullOrEmpty(storedUserResult.Value))
-            {
-                var user = JsonConvert.DeserializeObject<User>(storedUserResult.Value);
-                return user;
-            }
-        }
-        catch (InvalidOperationException)
-        {
-
-        }
-        return null;
-    }
-
-    public async Task ClearBrowserUserDataAsync() => await _protectedBrowserStorage.DeleteAsync(_friendTriviaStorageKey);
 
     public string HashPassword(string password)
     {

@@ -3,6 +3,7 @@ using System;
 using FriendTrivia.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FriendTrivia.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251031182430_UserRoles")]
+    partial class UserRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
@@ -69,7 +72,7 @@ namespace FriendTrivia.Migrations
                     b.Property<int>("QuestionsCreated")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Role")
+                    b.PrimitiveCollection<string>("Roles")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

@@ -19,6 +19,7 @@ public class User
 
     [Required]
     public string PasswordHash { get; set; } = null!;
+    public string Role { get; set; } = "User";
 
     public int Streak { get; set; } = 0;
     public int QuestionsCreated { get; set; } = 0;
@@ -28,23 +29,4 @@ public class User
     public ICollection<Question> CreatedQuestions { get; set; } = new List<Question>();
     public ICollection<UserAnswer> Answers { get; set; } = new List<UserAnswer>();
 
-    public ClaimsPrincipal ToClaimsPrincipal() => new(
-        new ClaimsIdentity(new Claim[]
-        {
-            new (ClaimTypes.Name, Username),
-            new (ClaimTypes.Hash, PasswordHash),
-            new (nameof(Streak), Streak.ToString()),
-            new (nameof(QuestionsCreated), QuestionsCreated.ToString()),
-            new (nameof(LastAnswerDate), LastAnswerDate?.ToString() ?? string.Empty),
-        }, "FriendTrivia"
-    ));
-
-    public static User FromClaimsPrincipal(ClaimsPrincipal principal) => new()
-    {
-        Username = principal.FindFirstValue(ClaimTypes.Name),
-        PasswordHash = principal.FindFirstValue(ClaimTypes.Hash),
-        Streak = int.Parse(principal.FindFirstValue(nameof(Streak))),
-        QuestionsCreated = int.Parse(principal.FindFirstValue(nameof(QuestionsCreated))),
-        // LastAnswerDate = DateTime.Parse(principal.FindFirstValue(nameof(LastAnswerDate)) ?? DateTime.UtcNow.ToString())
-    };
 }

@@ -2,11 +2,9 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using FriendTrivia.Components;
-using FriendTrivia.Providers;
 using FriendTrivia.Services;
 using FriendTrivia.Data;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
-
+using Microsoft.AspNetCore.Authentication.Cookies;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddQuickGridEntityFrameworkAdapter();
@@ -17,18 +15,21 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Logging.AddConsole();
 
 // Auth Stuff 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(option =>
+    {
+        option.Cookie.Name = "auth_token";
+        option.LoginPath = "/login";
+        option.Cookie.MaxAge = TimeSpan.FromMinutes(30);
+        option.AccessDeniedPath = "/access-denied";
+    }
+);
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<FriendTriviaAuthStateProvider>();
-builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<FriendTriviaAuthStateProvider>());
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
-// Register Auth Service
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<AuthService>();
 
 // EF Core with SQLite
 builder.Services.AddDbContextFactory<AppDbContext>(options =>

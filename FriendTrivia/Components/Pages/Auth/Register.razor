@@ -2,8 +2,7 @@
 @using FriendTrivia.Services
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.CodeAnalysis.Elfie.Serialization
-@rendermode InteractiveServer
-@inject IAuthService AuthService
+@inject AuthService authService
 @inject NavigationManager NavigationManager
 
 <PageTitle>Register - Friend Trivia</PageTitle>
@@ -70,7 +69,8 @@
 </div>
 
 @code {
-    private RegisterModel registerModel = new();
+    [SupplyParameterFromForm]
+    private RegisterModel registerModel { get; set; } = new();
 
     private string? errorMessage;
 
@@ -96,7 +96,7 @@
         try
         {
             errorMessage = null;
-            var user = await AuthService.RegisterAsync(registerModel.Username, registerModel.Password);
+            var user = await authService.RegisterAsync(registerModel.Username, registerModel.Password);
 
             if (user == null)
             {

@@ -1,12 +1,13 @@
 @page "/login"
 @using FriendTrivia.Services
-@using FriendTrivia.Providers
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
 @using Microsoft.AspNetCore.Components.Forms
 @using System.ComponentModel.DataAnnotations
-@inject FriendTriviaAuthStateProvider FriendTriviaAuthStateProvider
+@using System.Security.Claims
+@inject AuthService authService
 @inject NavigationManager NavigationManager
 
-@rendermode InteractiveServer
 
 <PageTitle>Login - Friend Trivia</PageTitle>
 
@@ -63,8 +64,12 @@
 </div>
 
 @code {
-    private LoginModel model = new();
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
+    [SupplyParameterFromForm]
+    private LoginModel model { get; set; } = new();
     private string? errorMessage;
+
 
     private class LoginModel
     {
@@ -78,13 +83,22 @@
     private async Task HandleLogin()
     {
         errorMessage = null;
-        bool success = await FriendTriviaAuthStateProvider.LoginAsync(model.Username, model.Password);
+        var user = await authService.LoginAsync(model.Username, model.Password);
 
-        if (!success)
+        if (user == null)
         {
             errorMessage = "Invalid username or password";
             return;
         }
+
+        var claims = new List<Claim>{
+new Claim(ClaimTypes.Name, user.Username),
+new Claim(ClaimTypes.Role, user.Role)
+};
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+        await HttpContext.SignInAsync(principal);
 
         // TODO: Set up authentication state
         NavigationManager.NavigateTo("/");
