@@ -15,7 +15,7 @@
         </div>
         <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <div class="card-body">
-                <EditForm Model="@registerModel" OnValidSubmit="HandleRegistration">
+                <EditForm FormName="registerForm" Model="@registerModel" OnValidSubmit="HandleRegistration">
                     <DataAnnotationsValidator />
 
                     @if (!string.IsNullOrEmpty(errorMessage))
@@ -103,8 +103,9 @@
                 errorMessage = "Username is already taken";
                 return;
             }
-            Console.WriteLine("Successfully Resgistration");
-            NavigationManager.NavigateTo("/login");
+            Console.WriteLine("Successful Registration");
+            @* Fix Navigation, does not navigate to login when successful registraion *@
+            NavigationManager.NavigateTo("/login", true);
         }
         catch (Exception ex)
         {

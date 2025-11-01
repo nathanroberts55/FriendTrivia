@@ -30,6 +30,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<UserService>();
 
 // EF Core with SQLite
 builder.Services.AddDbContextFactory<AppDbContext>(options =>

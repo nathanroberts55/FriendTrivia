@@ -20,7 +20,7 @@ public class AuthService : IAuthService
 {
     private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-    public AuthService(IDbContextFactory<AppDbContext> contextFactory, ProtectedLocalStorage protectedBroswerStorage)
+    public AuthService(IDbContextFactory<AppDbContext> contextFactory)
     {
         _contextFactory = contextFactory;
     }
