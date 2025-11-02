@@ -41,12 +41,12 @@
             <div class="mt-8 stats shadow">
                 <div class="stat place-items-center">
                     <div class="stat-title">Current Streak</div>
-                    <div class="stat-value text-primary">0</div>
+                    <div class="stat-value text-primary">@(user != null ? user.Streak : 0)</div>
                     <div class="stat-desc">Days</div>
                 </div>
                 <div class="stat place-items-center">
                     <div class="stat-title">Questions Created</div>
-                    <div class="stat-value text-secondary">0</div>
+                    <div class="stat-value text-secondary">@(user != null ? user.CreatedQuestions.Count : 0)</div>
                     <div class="stat-desc">Total</div>
                 </div>
             </div>
@@ -87,11 +87,15 @@
 {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
-    private User? user;
+    private User? user = null;
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+
         var authenticationState = await authenticationStateTask;
-        user = await userService.GetUserAsync(authenticationState.User.Identity.Name);
+        if (authenticationState.User.Identity.IsAuthenticated)
+        {
+            user = await userService.GetUserAsync(authenticationState.User.Identity.Name);
+        }
     }
 }
